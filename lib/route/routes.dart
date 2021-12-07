@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:qr_scanner/modules/scanner/blocs/scanner_bloc.dart';
 import 'package:qr_scanner/modules/scanner/pages/scanner_page.dart';
 import 'package:qr_scanner/modules/welcome/pages/welcome_page.dart';
+import 'package:qr_scanner/providers/bloc_provider.dart';
 import 'package:qr_scanner/route/route_name.dart';
 
 class Routes {
   static Route authorizedRoute(RouteSettings settings) {
-    print(settings.name);
-
     switch (settings.name) {
       case '/':
         return _buildRoute(
           settings,
-          const ScannerPage(),
+          BlocProvider(
+            bloc: ScannerBloc()..getListQr,
+            child: const ScannerPage(),
+          ),
         );
 
       default:
@@ -20,7 +23,6 @@ class Routes {
   }
 
   static Route unAuthorizedRoute(RouteSettings settings) {
-    print(settings.name);
     switch (settings.name) {
       case '/':
         return _buildRoute(

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:qr_scanner/blocs/app_state_bloc.dart';
 import 'package:qr_scanner/providers/bloc_provider.dart';
 import 'package:qr_scanner/route/route_name.dart';
 import 'package:qr_scanner/route/routes.dart';
 import 'package:qr_scanner/src/settings/settings_controller.dart';
 
-/// The Widget that configures your application.
 class MyApp extends StatefulWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 

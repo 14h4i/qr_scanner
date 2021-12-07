@@ -20,13 +20,13 @@ class _ScannerPageState extends State<ScannerPage> {
   ScannerBloc? get scannerBloc => BlocProvider.of<ScannerBloc>(context);
   LogProvider get logger => const LogProvider('⚡️ QR Scanner');
   QRViewController? controller;
-  late bool isRun;
+  late bool isPause;
 
   @override
   void initState() {
     super.initState();
 
-    isRun = false;
+    isPause = false;
   }
 
   @override
@@ -54,16 +54,16 @@ class _ScannerPageState extends State<ScannerPage> {
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.all(8),
-                        child: isRun
+                        child: !isPause
                             ? ElevatedButton(
                                 onPressed: () async {
                                   await controller?.pauseCamera();
                                   setState(() {
-                                    isRun = false;
+                                    isPause = true;
                                   });
                                 },
                                 child: const Text(
-                                  'Stop',
+                                  'Pause',
                                   style: TextStyle(fontSize: 18),
                                 ),
                               )
@@ -71,11 +71,11 @@ class _ScannerPageState extends State<ScannerPage> {
                                 onPressed: () async {
                                   await controller?.resumeCamera();
                                   setState(() {
-                                    isRun = true;
+                                    isPause = false;
                                   });
                                 },
                                 child: const Text(
-                                  'Start',
+                                  'Resume',
                                   style: TextStyle(fontSize: 18),
                                 ),
                               ),
@@ -191,7 +191,6 @@ class _ScannerPageState extends State<ScannerPage> {
   void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
-      controller.pauseCamera();
     });
     controller.scannedDataStream.listen((scanData) async {
       scannerBloc!.saveQr(scanData.code);

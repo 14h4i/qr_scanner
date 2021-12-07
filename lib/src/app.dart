@@ -24,7 +24,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final appStateBloc = AppStateBloc();
-  // static final GlobalKey<State> key = GlobalKey();
+  static final GlobalKey<State> key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               initialRoute: RouteName.welcomePage,
-              // key: const ValueKey('UnAuthorized'),
+              key: const ValueKey('UnAuthorized'),
               themeMode: ThemeMode.light,
               onGenerateRoute: Routes.unAuthorizedRoute,
               builder: _builder,
@@ -54,12 +54,12 @@ class _MyAppState extends State<MyApp> {
           }
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            initialRoute: RouteName.scannerPage,
-            // key: key,
+            initialRoute: '/',
+            key: key,
             themeMode: ThemeMode.light,
             onGenerateRoute: Routes.authorizedRoute,
             builder: _builder,
-            // navigatorKey: MyApp.navigatorKey,
+            navigatorKey: MyApp.navigatorKey,
           );
         },
       ),

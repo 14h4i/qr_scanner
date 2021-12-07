@@ -6,7 +6,7 @@ import 'package:qr_scanner/route/route_name.dart';
 class Routes {
   static Route authorizedRoute(RouteSettings settings) {
     switch (settings.name) {
-      case RouteName.scannerPage:
+      case '/':
         return _buildRoute(
           settings,
           const ScannerPage(),
@@ -18,7 +18,7 @@ class Routes {
 
   static Route unAuthorizedRoute(RouteSettings settings) {
     switch (settings.name) {
-      case RouteName.welcomePage:
+      case '/':
         return _buildRoute(
           settings,
           const WelcomePage(),

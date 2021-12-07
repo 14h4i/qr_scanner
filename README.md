@@ -1,30 +1,34 @@
-# qr_scanner
+# QR Scanner App
 
-A new Flutter project.
+A Flutter project for QR code scanner
 
-## Getting Started
+## About
+The application includes two screens: `Welcome` and `Scanner`.
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple).
+The app is built using the new template: `Skeleton`.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## State management
+Using `Bloc/RxDart` to manage states.
 
-## Assets
+I use an `AppStateBloc` to manage the state of the application:
+- `authorized`
+- `unAuthorized`
+- `loading`
 
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
+## Shared Preferences
+Use the `SharedPreferences` plugin to save application states and QR codes and caches.
 
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware).
+The next time you open the app, the app status and the QR codes will be reloaded.
 
-## Localization
+## Features
+Features of QR Scanner:
+- Pause and Resume Camera.
+- Turn on and off the flash to help scan QR code in low light.
+- Switch between your phone's front and back camera.
+- Store QR codes in cache.
+- Clear QR codes.
 
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter
-apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+## Screenshots
+| <img src="https://raw.githubusercontent.com/14h4i/qr_scanner/master/screenshots/screenshot-page-welcome.jpg" width="360" /> | <img src="https://raw.githubusercontent.com/14h4i/qr_scanner/master/screenshots/screenshot-page-scanner.jpg" width="360" /> |
+| :------------: | :------------: |
+| **Welcome** screen | **Scanner** screen |

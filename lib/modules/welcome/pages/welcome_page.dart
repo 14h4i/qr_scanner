@@ -15,6 +15,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -22,11 +23,16 @@ class _WelcomePageState extends State<WelcomePage> {
           Text(
             'Welcome to\nQR Scanner App',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headline2,
+            style: Theme.of(context)
+                .textTheme
+                .headline2!
+                .copyWith(color: Colors.white),
           ),
           IconButton(
-            highlightColor: Colors.blue,
-            icon: const Icon(Icons.arrow_forward),
+            icon: const Icon(
+              Icons.arrow_forward,
+              color: Colors.white,
+            ),
             onPressed: _changeAppState,
           ),
         ],

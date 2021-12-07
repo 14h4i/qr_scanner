@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_scanner/blocs/app_state_bloc.dart';
+import 'package:qr_scanner/modules/scanner/blocs/scanner_bloc.dart';
+import 'package:qr_scanner/modules/scanner/widgets/qr_card.dart';
 import 'package:qr_scanner/providers/bloc_provider.dart';
+import 'package:qr_scanner/providers/log_provider.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({Key? key}) : super(key: key);
@@ -14,13 +17,15 @@ class ScannerPage extends StatefulWidget {
 class _ScannerPageState extends State<ScannerPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   AppStateBloc? get appStateBloc => BlocProvider.of<AppStateBloc>(context);
-  Barcode? result;
+  ScannerBloc? get scannerBloc => BlocProvider.of<ScannerBloc>(context);
+  LogProvider get logger => const LogProvider('⚡️ QR Scanner');
   QRViewController? controller;
   late bool isRun;
 
   @override
   void initState() {
     super.initState();
+
     isRun = false;
   }
 
@@ -44,11 +49,6 @@ class _ScannerPageState extends State<ScannerPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                if (result != null)
-                  Text(
-                      'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                else
-                  const Text('Scan a code'),
                 Row(
                   children: <Widget>[
                     Expanded(
@@ -62,8 +62,10 @@ class _ScannerPageState extends State<ScannerPage> {
                                     isRun = false;
                                   });
                                 },
-                                child: const Text('Pause',
-                                    style: TextStyle(fontSize: 20)),
+                                child: const Text(
+                                  'Stop',
+                                  style: TextStyle(fontSize: 18),
+                                ),
                               )
                             : ElevatedButton(
                                 onPressed: () async {
@@ -72,8 +74,10 @@ class _ScannerPageState extends State<ScannerPage> {
                                     isRun = true;
                                   });
                                 },
-                                child: const Text('Resume',
-                                    style: TextStyle(fontSize: 20)),
+                                child: const Text(
+                                  'Start',
+                                  style: TextStyle(fontSize: 18),
+                                ),
                               ),
                       ),
                     ),
@@ -89,10 +93,11 @@ class _ScannerPageState extends State<ScannerPage> {
                               future: controller?.getFlashStatus(),
                               builder: (context, snapshot) {
                                 return Text(
-                                    snapshot.data != true
-                                        ? 'On Flash'
-                                        : 'Off Flash',
-                                    style: TextStyle(fontSize: 20));
+                                  snapshot.data != true
+                                      ? 'On Flash'
+                                      : 'Off Flash',
+                                  style: const TextStyle(fontSize: 18),
+                                );
                               },
                             )),
                       ),
@@ -113,7 +118,7 @@ class _ScannerPageState extends State<ScannerPage> {
                                     describeEnum(snapshot.data!) == 'back'
                                         ? 'To Front'
                                         : 'To Back',
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 18),
                                   );
                                 } else {
                                   return const Text('Loading');
@@ -121,8 +126,40 @@ class _ScannerPageState extends State<ScannerPage> {
                               },
                             )),
                       ),
-                    )
+                    ),
                   ],
+                ),
+                const Divider(),
+                Expanded(
+                  child: StreamBuilder<List<String>?>(
+                    stream: scannerBloc!.listQrStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Some Error'),
+                        );
+                      }
+                      if (snapshot.hasData) {
+                        final listQr = snapshot.data;
+                        return ListView.builder(
+                            itemCount: listQr!.length,
+                            itemBuilder: (context, index) {
+                              return QrCard(value: listQr[index]);
+                            });
+                      }
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.redAccent),
+                  child: const Text(
+                    'Clear All',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onPressed: scannerBloc!.clearAllQr,
                 ),
               ],
             ),
@@ -133,22 +170,20 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 150.0
         : 300.0;
-    // To ensure the Scanner view is properly sizes after rotation
-    // we need to listen for Flutter SizeChanged notification and update controller
     return QRView(
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: scanArea),
+        borderColor: Colors.red,
+        borderRadius: 10,
+        borderLength: 30,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
       onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
   }
@@ -156,16 +191,15 @@ class _ScannerPageState extends State<ScannerPage> {
   void _onQRViewCreated(QRViewController controller) {
     setState(() {
       this.controller = controller;
+      controller.pauseCamera();
     });
-    controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
-      });
+    controller.scannedDataStream.listen((scanData) async {
+      scannerBloc!.saveQr(scanData.code);
     });
   }
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    print('${DateTime.now().toIso8601String()}_onPermissionSet $p');
+    logger.log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('no Permission')),
